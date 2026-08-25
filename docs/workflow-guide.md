@@ -8,14 +8,15 @@ A set of skills that take a change from a rough idea to shipped, tested, and doc
 
 ## The workflows
 
-There are nine. You run only the ones a change needs, in whatever order fits.
+There are ten. You run only the ones a change needs, in whatever order fits.
 
 | Workflow | What it does |
 |---|---|
-| `scope` | Turns an idea into a coarse plan of what to build and in what order. |
+| `scope` | Captures the wider product, then plans the smallest useful build as Now, Next, and Later. |
+| `compress` | Shrinks a plan or feature again when it no longer feels buildable soon. |
 | `audit` | Writes the context files that tell every other skill how your project works. |
-| `architect` | Makes a real decision (a stack, a data model, a page design) and writes it as a spec. |
-| `develop` | Builds a feature, user interface or backend, from its spec. |
+| `architect` | Makes a decision blocking the current slice and writes it as a spec, with full depth for risky work. |
+| `develop` | Builds the next scope feature from its recorded outcome and any governing spec. |
 | `check` | Confirms a change before merge, by running the real app and by a second review. |
 | `test` | Writes a test suite for the code you just changed. |
 | `document` | Writes the human facing text, a pull request body, a changelog, a release note. |
@@ -34,7 +35,7 @@ Everything the workflow knows is written into files in your repo. This is the wh
 
 The key idea is that these files nest. There is one at the root of the project for rules that apply everywhere. There can be more inside folders for rules that apply only to that area. For example a project might have a root `AGENTS.md` and also a `src/payments/AGENTS.md` that records rules only the payments code follows. When a skill works on the payments code, it reads the nearest one, so it sees both the project wide rules and the local ones. `audit` creates these files. Every other skill reads them. `sync` keeps them current as the code changes. No skill guesses your conventions when a context file already states them.
 
-**The scope, in `docs/scope/`.** This is the coarse plan of what to build and in what order. `scope` creates it. `develop` advances it as features get built, marking a feature as in progress and ticking milestones, but never marking a feature fully done on its own, because built is not the same as verified. A plain run of `scope` with no argument, and `sync` at merge time, reconcile it back against what the code now shows.
+**The scope, in `docs/scope/`.** This is the coarse product picture grouped into `Now`, `Next`, and `Later`. `scope` creates it, and `compress` can tighten it in place without deleting deferred work. `develop` advances it as features get built. A plain run of `scope` and `sync` at merge time reconcile it against what the code now shows.
 
 **The specs, in `docs/specs/`.** A spec is the written record of one real decision, and it is the contract the build follows. This is the file type people ask about most, so here is its full life.
 
@@ -57,7 +58,7 @@ The files stay trustworthy because ownership is fixed. Here is who creates each 
 | File | Created by | Read by | Changed by |
 |---|---|---|---|
 | `AGENTS.md` and its `CLAUDE.md` pointer | audit | every skill | sync |
-| Scope in `docs/scope/` | scope | architect, develop | develop advances it, scope and sync reconcile it |
+| Scope in `docs/scope/` | scope or compress | architect, develop | compress reprioritizes it, develop advances it, scope and sync reconcile it |
 | Specs in `docs/specs/` | architect (plus the `Assumed` stub, which develop may create) | develop | develop moves the status line along the built lifecycle and may create a spec only in the `Assumed` state; architect owns all content, clears the `Assumed` mark by ratifying, and marks a replacement; sync flags a stale one and surfaces an unratified `Assumed` one |
 | `design.md` and the CSS values it points at | develop | develop, check | develop |
 
@@ -71,9 +72,9 @@ To make the flow concrete, follow one idea all the way through. The idea is a sm
 
 #### Stage 1, scope the idea
 
-You run `scope`. It turns the idea into a coarse plan and writes it to `docs/scope/`. Because there is no code yet, it treats this as a brand new project and plans the first slices, starting with the foundation and the first real feature.
+You run `scope`. It captures the capabilities the product may eventually need, then applies one test: if a capability disappeared, could the first user still complete the core loop and could you still learn whether the product is useful? Anything that passes that deletion test moves to `Next` or `Later`. Only the smallest coherent loop and its direct dependencies remain in `Now`.
 
-The one real question here is how you want to deliver the work. The workflow offers four delivery styles, and your pick shapes the order everything is built in later.
+The skill asks one compact round only when the first user, core job, proof of value, time budget, or real risk cannot be inferred. It then recommends a delivery style and workflow depth without adding another planning gate.
 
 - **Thin thread first.** Build one narrow path that goes all the way through every layer, from the screen to the database, and works end to end, then thicken it. Good when you want something real and connected as early as possible.
 - **Smallest usable thing first.** Build the smallest version that a person could actually use, then grow it. Good when you want to ship and learn fast.
@@ -82,7 +83,7 @@ The one real question here is how you want to deliver the work. The workflow off
 
 Whatever you pick is recorded as the project default. Any single feature can override it later if that one feature is better built a different way.
 
-Before it finishes, `scope` makes one more recommendation, how much workflow this project wants by default. Not every project needs the full loop, and a small app should not be pushed through review and a separate test suite for a styling tweak. So it proposes one of four depths, with a clear recommendation you can override, and explains what each one runs. The depth is only the suggested checking tail after `develop`, and the suggested point to call a feature done, never a track you are locked onto: you run or skip any stage and declare `done` when you decide it is. It does not turn off the gate, so at every depth a feature that needs a real decision still goes through `architect` first (or records an assumed spec).
+Before it finishes, `scope` recommends how much verification the `Now` slice needs. The depth remains a suggestion, and a risky feature can override a lighter project default. The first handoff normally goes straight to `develop`. It routes through `architect` only when the current slice has a difficult to reverse, high risk, foundational, or product contract decision.
 
 - **Prototype.** Just `develop`, nothing after it. You rely on `develop`'s own build time self check, it typechecks the code and renders the screen to look at it when it can, plus your own eye. No `check` verify, no test suite, no review. Because you have chosen to skip separate verification, `develop` marks the feature done itself once it is built and self checked. Good for throwaway prototypes, experiments, and personal projects.
 - **Alpha.** After `develop`, `check` in verify mode on the real running app, which marks the feature done when it passes. No separate test suite or second opinion unless a feature asks for it. Good for low risk features and internal tools you still want proven.
@@ -95,7 +96,7 @@ So a light tier does not mean skipping `architect`. It means low rigor features 
 
 #### Stage 2, decide the stack
 
-You run `architect`. Because this is a new project with no stack yet, it works in its stack mode, a wide comparison of options with a clear recommendation. Before it asks anything, it reads whatever context files exist, so it never asks what it can already see.
+You run `architect` only when the first slice has a blocking stack decision. Foundational architecture uses Full depth, but it still chooses only the layers needed to make `Now` runnable. Future email, analytics, search, scaling, and operational systems remain follow up until a current acceptance criterion needs them.
 
 It sorts everything it needs into three kinds and treats each differently.
 
@@ -115,7 +116,7 @@ The order here matters. The stack is chosen and the project exists before `audit
 
 #### Stage 4, design the sign in feature
 
-You run `architect` again, this time for the sign in feature. Now it works in its feature mode, a focused design of one thing rather than a whole stack comparison. It uses the same three kinds of questions as before, working out what it can, asking only what you alone know, and recommending the rest.
+You run `architect` again for sign in because authentication is high risk and automatically uses Full depth. For an ordinary feature it uses Slice depth instead: it infers what the repository already settles, asks only questions that change the current build, recommends reversible choices, and records future concerns as follow up.
 
 Before writing, it checks whether a spec for this already exists. If a very close one is found, it asks whether to treat this as a brand new decision, an update to that existing spec, or a replacement of it. For a fresh feature it is a new spec. It also decides the shape of the spec, a single file for a simple decision, or a small folder when the decision is large or has parts inside it.
 
@@ -214,18 +215,18 @@ On a team, before it changes anything, `develop` checks a few things and warns y
 The limits matter as much as the features.
 
 - It will not quietly decide a feature is done, and it will not withhold `done` from you either. `done` is always yours to declare. The tier you chose in `scope` only sets the suggested point to call it: at `Prototype`, once a build self checks; at `Alpha`, once `check` verify passes; at `Beta` and up, once tests are in. Those are suggestions, not gates, you can mark `done` sooner or run more first, and a step you skip is recorded as skipped, never held against you. A feature built on an assumed decision stays flagged as owing ratification (`architect`) until you ratify it, but that flag no longer blocks `done`.
-- It works hard not to invent a decision you have not made and hide it, though this is a strong gate, not an absolute guarantee (no prompt can be). If building would mean guessing a provider, a data shape, or a design, `develop` stops and sends you to `architect`. You can override and build anyway, but then it writes the assumption down as an `Assumed` spec and flags the feature as owing ratification (`architect`), a flag that never blocks done. The gate is layered so a decision does not slip through silently: `architect` names the source of every value a feature must produce, `develop` checks that coverage again before it builds, and on higher tiers `architect` recommends running an independent model over the spec for decisions it never settled (it asks first, and any gap it finds comes back to you to decide, with a recommendation). What that catches is the vast majority; what it misses is caught later as wrong behavior by `check` in verify mode and by `test`.
+- It works hard not to hide a blocking decision. `develop` stops for difficult to reverse, high risk, foundational, or product contract choices, and for required product values with no source. Reversible libraries, layout, setup, and local implementation choices receive a recommendation and continue. You can still authorize an `Assumed` spec for a real blocking decision when you want to build first.
 - It will not reach the internet without your go ahead. It asks before searching for an outside connector or looking anything up, and it records what it used.
 - The review does not edit your code. It reads and reports, and you decide what to change.
-- No skill rewrites your prose or reaches into another skill's files. Ownership is fixed, which is what keeps the files trustworthy over time.
+- File ownership stays explicit. `scope` and `compress` co-own prioritization in the living scope, `develop` advances its build state, and `architect` alone owns spec decisions.
 
 ---
 
 ## Common questions
 
-**Do I have to run all nine?** No. You run only the ones a change needs. A tiny change can be just `develop` and then `check` in verify mode. A bug is just `debug`.
+**Do I have to run all ten?** No. You run only the ones a change needs. A tiny change can be just `develop` and then `check` in verify mode. A bug is just `debug`.
 
-**What if there is no spec yet?** If a real decision is missing, `develop` stops and offers to send you to `architect` to make it, or to build directly if you judge there is nothing to decide, or to build now and record the assumption as an `Assumed` spec. That last option keeps you moving while still writing the decision into the repository, and it flags the feature as owing ratification (`architect`) without ever blocking done.
+**What if there is no spec yet?** Ordinary reversible work can build directly from the scope. If a blocking decision is missing, `develop` offers to send you to `architect`, continue if you judge no decision is needed, or record an `Assumed` spec and build first.
 
 **Is it fine to never ratify an `Assumed` spec?** It is allowed, but it is not free. Both a bare `scope` and `sync` keep surfacing the `Assumed` spec as an open decision that is owed. For a throwaway spike that is fine, leave it. For real work that standing flag is the nudge to go ratify it. The workflow does not block a merge, but the assumption and the fact that it is owed stay durable in the repository, which is the guarantee it actually makes.
 
@@ -243,10 +244,10 @@ Install with `npx skills`. Pick the line for your agent.
 
 ```bash
 # Claude Code, installs into .claude/skills, then restart Claude Code
-npx skills@latest add JavaScript-Mastery-Pro/skills -a claude-code
+npx skills@latest add cedik456/engineering-skills -a claude-code
 
 # Generic .agents/skills, read by Codex and other agents
-npx skills@latest add JavaScript-Mastery-Pro/skills
+npx skills@latest add cedik456/engineering-skills
 ```
 
 Commit the installed skills folder so your whole team shares the same workflow. For a brand new product start at stage 1 above. For an existing codebase run `audit` first so every skill understands your project, then plan the next slice with `scope` and follow the same loop. For a bug, go straight to `debug`. For a tiny change, run just `develop` and then `check` in verify mode.

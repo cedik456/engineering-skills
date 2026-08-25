@@ -3,5 +3,5 @@
 # Agent Skills client installs alongside this file and loads when the skill runs.
 interface:
   display_name: "Develop"
-  short_description: "Build features from approved specs"
-  default_prompt: "Run the develop skill: read its SKILL.md, check the spec gate, then implement the next approved feature from its build spec."
+  short_description: "Build the next clear MVP slice"
+  default_prompt: "Run the $develop skill to build the next scoped feature, using any governing spec and stopping only for a genuinely blocking decision."

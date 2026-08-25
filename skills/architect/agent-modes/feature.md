@@ -11,7 +11,7 @@ If SOURCE_FILE_COUNT is 0: skip to Step 2.
 
 **Step 2: First principles reasoning**
 
-Work through these in order. Do not skip any:
+Work through only the items the current acceptance criteria touch. At Slice depth, infer or recommend reversible details and omit sections that do not apply. At Full depth, cover the wider risk surface justified by the feature:
 
 1. **The real user problem**: the job the user is hiring this feature to do; the outcome they care about, not the feature they asked for.
 2. **Data model**: entities, their lifecycle states, invariants that must always hold. Draw the state machine if transitions exist.
@@ -24,7 +24,7 @@ Work through these in order. Do not skip any:
 **Expert opinions to apply for feature design:**
 
 - **Idempotency from day one.** Every mutation safe to retry; idempotency keys for any operation involving money, communication, or external side effects.
-- **Pagination is not optional.** Any list endpoint must paginate, even in MVP; unpaginated lists become production incidents.
+- **Bound every list.** Use pagination when the list can grow during the current product stage. A deliberately tiny or naturally bounded MVP list may use a clear limit and record when pagination becomes necessary.
 - **Soft deletes are usually wrong.** They pollute queries, break unique constraints, and create ghost data. Use explicit `archived_at` timestamps or archive tables instead.
 - **Never compute and store derived values** unless you have a measured performance problem. Compute at read time; stored computed values go stale.
 - **Audit logs are required** for any mutation touching money, access control, medical data, or compliance scope. Add them now; retrofitting is painful.
@@ -41,7 +41,7 @@ Use the spec template structure (its full text was injected into this prompt by 
 
 Write `## Requirements` and `## Build plan` exactly as specified in `On the acceptance-criteria spine & build plan` under "Expert rules that apply to all modes" (ACs verbatim, ordering shaped by BUILD_APPROACH, the data model is the coherent target and its migration is sized to the feature (one normally; sliced only for a large feature or a thin thread/Facade approach; omitted for a slice touching no schema), tasks tagged with the AC they satisfy for full two way traceability).
 
-Include `## Feature design` after `## Rationale`. Every field below is required; leave none as a placeholder:
+Include `## Feature design` after `## Rationale`. Fill every field that applies to the current slice and omit sections that do not. Never leave placeholders:
 
 ```markdown
 ## Feature design

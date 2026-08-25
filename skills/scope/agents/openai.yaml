@@ -3,5 +3,5 @@
 # Agent Skills client installs alongside this file and loads when the skill runs.
 interface:
   display_name: "Scope"
-  short_description: "Plan and reconcile feature scopes"
-  default_prompt: "Run the scope skill: read its SKILL.md, then plan the next feature slices for this product, or reconcile the scope with what has shipped."
+  short_description: "Plan a compressed MVP and what follows"
+  default_prompt: "Run the $scope skill to capture the wider product, compress it into the smallest useful build, and keep Next and Later visible."

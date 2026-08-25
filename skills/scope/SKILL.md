@@ -1,7 +1,7 @@
 ---
 name: scope
 allowed-tools: Bash, Read, Grep, Glob, Write, Edit, Agent, AskUserQuestion
-description: "Run /scope to turn a product idea into a living, coarse scope in docs/scope/ and keep it current: plan a new product, plan the next slice, enroll one named feature, or run with no argument to reconcile after shipping and queue what is next. Seeds WHAT to build; /architect designs, /develop builds."
+description: "Run /scope to turn a product idea into a living, compressed MVP scope in docs/scope/ and keep it current. Captures the wider product as Now, Next, and Later, then hands off the smallest useful build. Seeds WHAT to build; /architect designs blocking decisions, /develop builds."
 ---
 
 ## Output style (plain words, no dashes, no hyphens)
@@ -12,9 +12,11 @@ Write everything this skill produces, files and messages alike, in plain simple 
 
 ## What this skill does
 
-Turns an idea into an ordered, coarse, living plan and keeps it honest as the product ships. Answers what to build, in what order, how heavy, which need a decision first, not how to build one thing (that is `/architect` and `/develop`).
+Turns an idea into an ordered, coarse, living plan and keeps it honest as the product ships. It captures the bigger product picture, then compresses active work to the smallest end to end loop that proves value. Answers what to build now, what comes next, what waits, how heavy, and which current choices need a decision first. `/architect` designs blocking decisions and `/develop` builds.
 
-Scope shape, coarse and small: a slim At a glance table (`# · Feature · Phase · Status`) + feature sections grouped by phase (see `scope-template.md`). Each section: heading `### N. Name` with short tags only when they matter (`needs a decision`, an approach override, a workflow tier override like `· GA`), a 1 to 2 line intent, one `Done when:` line (acceptance criteria seeds, the WHAT), checkbox steps.
+`/scope` applies MVP compression by default. `/compress` is the optional escape hatch for applying the same cut again when an existing scope or feature has expanded.
+
+Scope shape, coarse and small: a slim At a glance table (`# · Feature · Phase · Status`) + feature sections grouped as `Now`, `Next`, and `Later` (see `scope-template.md`). Each section: heading `### N. Name` with short tags only when they matter (`needs a decision`, an approach override, a workflow tier override like `· GA`), a 1 to 2 line intent, one `Done when:` line (acceptance criteria seeds, the WHAT), checkbox steps.
 
 Feature shape lifecycle: not yet designed → one box, its entry command. On spec capture, `/architect` fills the built ready shape: `Design it (spec)` ticked, spec linked, `Build it: /develop <feature>` with 2 to 5 milestone sub items rolled up from the spec's `## Build plan`, then `Verify it: /check verify <feature>` and `Test it: /test <feature>`. Atomic build tasks stay in the spec's `## Build plan`, never here; every box is a command or tracked milestone. Status: in the table and beside the heading; spec and code pointers once they exist.
 
@@ -25,7 +27,7 @@ One command, inferred intent (`/scope [what]`, never a subcommand):
 
 ## Asks vs acts
 
-Senior product engineer. Same infer / ask / recommend discipline as `/architect`: INFER what the idea states (category, obvious capabilities); ASK what cannot be inferred across business, product, go to market in batched rounds (up to 4 questions per round; see Decision panels); RECOMMEND build approach, build order, the workflow tier (project default and any per feature override), which need a spec (expert calls: present them, let the engineer override).
+Senior product engineer. INFER what the idea and repository already state. ASK only what changes the smallest valuable loop, normally one compact round. RECOMMEND the build approach, build order, workflow tier, and which current decisions warrant a spec. Capture broader capabilities as `Next` and `Later` instead of interviewing the engineer about every future concern.
 
 Never pick tools: no provider, library, ORM, host, or BaaS chosen or named; that is `/architect`'s job per feature in the spec. A feature implying a tool choice is exactly `Needs spec: yes`. Keep the scope tool agnostic so it doesn't rot.
 

@@ -1,20 +1,31 @@
 # Scope Plan Route: greenfield
 
-Greenfield: decompose the whole MVP from scratch, foundations first. Apply the foundations first sequencing below at Step 4 of `plan.md`, after the build approach is chosen in Step 3.
+Greenfield: plan the smallest useful end to end product from scratch. Apply these rules at Step 4 of `plan.md`, after the build approach is recommended.
 
-## Foundations first sequencing (a principle every build approach obeys)
+## Compressed foundations
 
-No approach starts a feature slice before the ground it stands on exists (working skeleton before features). Lead with these explicit foundation features (never buried sub tasks), default order below (cheaper foundation precedes what depends on it). Stack decided + project scaffolded before `/audit` runs: `/audit` seeds root `AGENTS.md` conventions + tooling from the real project.
+The first slice needs enough ground to run, not a complete company platform. Treat foundations as implementation dependencies, not automatic features.
 
-1. **Standards preferences**: light preferences that can't be inferred (architecture style leanings, formatting taste). Keep light; may fold into the stack feature rather than its own row. Heavy convention + tooling capture is `/audit`, after scaffold. `Needs spec: no`.
-2. **Stack and architecture**: ONE foundation feature, built like any other (a decision box, `Decide the stack (spec)`, then an execution box, `Scaffold from the decision: /develop …`), never two rows. `/architect` decides the stack (ARCHITECTURE spec: the one place tools/providers/frameworks are chosen; nothing tooling related runs before it); `/develop` then scaffolds from it (framework init, dependency install, directory layout, runnable dev server/build). `Needs spec: yes`, tier `Beta`+. The spec records only the decision; `/develop` derives scaffold steps at build time (writing them in both places is the double spec bug). Scaffold installs only the runnable skeleton the first slice needs (framework, language, core runtime), never every eventual library: deciding the full stack up front is correct (the spec's job), installing it all is not; each later feature installs its own dependencies when built (e.g. the billing SDK when billing is built). Exception: cross cutting tooling (lint, format, type strictness, `pre-commit`, CI) comes early via `/audit` + `/develop tooling`, since all later code must follow it.
-3. **Coding standards & tooling**: two sub tasks: `/audit` (greenfield) captures conventions AND tooling choices into root `AGENTS.md` from the real scaffolded project, not guesses; then `/develop tooling` installs the chosen tooling (packages, config files, `pre-commit` hooks, CI) per what audit captured. `/audit` decides and records, never installs; `/develop` installs. `Needs spec: no`. After the stack and scaffold feature, never before.
-4. **Data model**: explicit, never skipped (`Needs spec: yes`): core entities, relationships, persistence shape. Never fold into another feature or skip; a wrong data model is the most expensive thing to redo.
-5. **Design system / UI foundation**: `/architect` → `design.md`, then base components (`Needs spec: yes`), if the product has meaningful UI; every page depends on it.
-6. **Walking skeleton slice**: a thin vertical slice wired end to end (DB → API → UI) doing one trivial real thing (e.g. one record created and rendered), proving the stack is connected before feature work. Tier `Beta`; usually leans on the foundation specs, not its own. Under Tracer Bullet it merges with the first real slice (below).
+Always identify these concerns, but create a separate scope feature only when the first slice truly needs a substantial or difficult to reverse decision:
 
-Then the feature slices, ordered and phased per Step 3. Phasing column: `Foundation`, `Skeleton`, the slice/journey (e.g. `Slice 2`), or `Deferred`; Order column: integer build sequence across the whole scope.
+1. **Runnable scaffold**: choose the narrow stack needed for the first slice and boot the project. When the user has not chosen a stack, keep Stack and architecture as one compact decision plus scaffold feature. The decision covers what is needed now, not every eventual integration or operational system.
+2. **Project conventions**: use framework defaults first. Run `/audit` after the scaffold when the repository needs durable context. Do not make formatting taste, hooks, full CI, or broad tooling a prerequisite for the first visible feature unless the project risk requires them.
+3. **Data shape**: model only the entities, fields, relationships, and constraints used by `Now`. Keep it inside the first feature when the schema is small. Split a data model foundation only when several `Now` features share it, the migration is difficult to reverse, or data integrity risk warrants a dedicated decision.
+4. **Visual direction**: reuse framework or existing component defaults for a simple MVP. Split a design system foundation only when several `Now` screens depend on shared visual rules or the product's value is strongly visual. A single page does not need a complete design system before it can be built.
+5. **Walking skeleton**: the first real feature should normally be the walking skeleton. Do not create a separate trivial skeleton and then rebuild the same layers for the core feature.
 
-Shape the slices exactly as the chosen approach's persona directs (`approaches/<name>.md`, already read in Step 3 of `plan.md`, whose role you have adopted). The approach changes WHAT the slices are, not just labels: every capability as its own fully built feature with `Slice 1 … Slice N` stapled on has NOT honored the approach. Follow the persona's decomposition rule, its first slice or deliverable, its real vs deferred split, and its sequencing, and let its worked example calibrate the shape.
+The default greenfield `Now` shape is therefore:
 
-Whatever the approach, most rows do NOT each need their own spec: the early slice rests on the foundational specs (data model, auth), and later slices usually extend a decided pattern. Still apply the invent test per row, but expect far fewer `Needs spec: yes` rows than a flat feature list; nearly every row needing one means you decomposed into full features, slice again.
+* one narrow scaffold or stack decision when needed
+* one core end to end feature that proves the product's value
+* at most the direct safety, validation, or operational support that core loop requires
+
+Anything else becomes `Next` or `Later`, even when it will probably be necessary for a mature product.
+
+## Sequencing
+
+Within `Now`, place a required foundation immediately before the feature that consumes it. Prefer merging small foundations into the core feature so the first handoff reaches `/develop` quickly.
+
+Shape the first slice exactly as the chosen approach's persona directs (`approaches/<name>.md`, already read in Step 3 of `plan.md`). The approach changes what gets built first, not just its label.
+
+Apply the `Needs spec` test narrowly. A current high risk, difficult to reverse, or product contract decision receives `/architect`. Reversible setup and implementation choices receive a recommendation or recorded assumption during `/develop`.

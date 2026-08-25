@@ -1,0 +1,5 @@
+# OpenAI Codex adapter. The skill instructions live in ../SKILL.md.
+interface:
+  display_name: "Compress"
+  short_description: "Shrink a plan into a buildable MVP"
+  default_prompt: "Use $compress to reduce this idea or scope to the smallest useful end to end build, while keeping later features visible."

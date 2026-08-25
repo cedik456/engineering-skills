@@ -2,7 +2,7 @@ Reference shapes for writing the scope and the completion report. Rules live in 
 
 ## What keeps it readable (the format rules)
 
-- **Two parts:** a slim **At a glance** table for a quick scan, then **the plan** as clean feature sections grouped by phase. Build order is just the section order. There is no separate "build order" list to keep in sync.
+- **Two parts:** a slim **At a glance** table for a quick scan, then **the plan** as clean feature sections grouped into `Now`, `Next`, and `Later`. Build order inside `Now` is just the section order. There is no separate "build order" list to keep in sync.
 - **Clean headings.** A heading is `### <N>. <Feature name>` plus a short status word and short tags **only when they carry real information** (`needs a decision`, a per feature approach override, a workflow tier override like `· GA`). Never a pipe delimited metadata row like `Title | P0 | inherit | …`.
 - **Each fact appears once.** Intent, the definition of done, tasks, and pointers live in the section; the At a glance table is the quick index. Status is shown in the table and beside the heading, and nowhere else.
 - **Only what is set.** No `n/a`, no `inherit`, no empty fields. A pointer line (`spec <n> · code in <path>`) appears **only once those exist**: the spec link added by `/architect` at capture, the code path by `/develop`.
@@ -24,67 +24,42 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 
 | # | Feature | Phase | Status |
 |---|---------|-------|--------|
-| 1 | Stack & architecture | Foundation | in-progress |
-| 2 | Coding standards & tooling | Foundation | planned |
-| 3 | Data model | Foundation | in-progress |
-| 4 | Design system & UI foundation | Foundation | planned |
-| 5 | Core standup loop | Slice 1 | planned |
-| 6 | Daily reminders | Slice 2 | planned |
+| 1 | Runnable product foundation | Now | in-progress |
+| 2 | Core standup loop | Now | planned |
+| 3 | Daily reminders | Next | planned |
+| 4 | Billing & plans | Later | planned |
 | … | … | … | … |
 
-## Foundations
+## Now
 
-### 1. Stack & architecture · in-progress
-Decide the stack and scaffold a runnable project so every later slice builds on real structure.
-**Done when:** the stack is recorded in a spec and the empty scaffold boots locally and passes build.
-- [x] Decide the stack (spec): `/architect stack & architecture`
-- [x] Scaffold from the decision: `/develop stack & architecture`
-- [ ] Smoke-check it runs: `/test`
+### 1. Runnable product foundation · in-progress
+Choose and scaffold only the stack the first working loop needs.
+**Done when:** the project boots locally and is ready for the core standup loop.
+- [x] Decide the narrow stack (spec): `/architect runnable product foundation`
+- [x] Scaffold it: `/develop runnable product foundation`
 Spec 0001 · code in `./`
 
-### 2. Coding standards & tooling
-Capture conventions, then install lint, format, and pre-commit enforcement from the real scaffolded project.
-**Done when:** root `AGENTS.md` reflects the real stack, and lint/format/pre-commit run clean.
-- [ ] Capture conventions + tooling choices: `/audit`
-- [ ] Install the tooling: `/develop tooling`
-- [ ] Check it runs clean: `/test`
-
-### 3. Data model · in-progress
-<!-- DESIGNED: /architect captured spec 0002 and filled in the shape below. The 2 to 5 boxes under
-     "Build it" are a ROLLUP of the spec's ## Build plan: every table, column, and policy lives in
-     the spec, NOT here. This is what a feature looks like right after its spec is captured. -->
-Core entities every feature builds on: users, teams, memberships, standup entries, template.
-**Done when:** entities and relationships support later slices (reminders, templates, history) without a breaking migration.
-- [x] Design it (spec): `/architect data model`
-- [ ] Build it: `/develop data model`
-   - [ ] Schema + constraints: tables, keys, unique/check, cascades (AC-1..6)
-   - [ ] Row-level security: per-table policies + helpers (AC-7..9)
-   - [ ] Apply migration, confirm live, generate types (AC-1..9)
-- [ ] Verify it: `/check verify data model`
-- [ ] Test it: `/test data model`
+### 2. Core standup loop · in-progress
+<!-- DESIGNED: /architect captured spec 0002 and filled in the shape below. The boxes under
+     "Build it" are a ROLLUP of the spec's ## Build plan. Atomic details stay in the spec. -->
+Sign in, create one team, submit today's update, and read today's feed. This is the real walking skeleton.
+**Done when:** the first user can complete the whole standup loop and see the submitted update.
+- [x] Design it (spec): `/architect core standup loop`
+- [ ] Build it: `/develop core standup loop`
+   - [ ] Minimal user, team, and update data (AC-1..3)
+   - [ ] Submit and read today's update (AC-2..5)
+- [ ] Verify it: `/check verify core standup loop`
 Spec 0002 · code (filled by /develop)
 
-### 4. Design system & UI foundation · needs a decision
-Visual language, layout primitives, and base components so the flows feel cohesive and accessible.
-**Done when:** `design.md` covers type/color/spacing/components, and base components handle focus and keyboard.
-- [ ] Design it (spec): `/architect design system & UI foundation`
+## Next
 
-## Slice 1: Core standup loop
-
-### 5. Core standup loop · needs a decision
-Sign in, create a team, submit today's update on the default template, read the team feed. Nothing else yet. This slice is the walking skeleton.
-**Done when:** a user can sign in, create a team, submit one standup a day, and see the team's updates for today.
-- [ ] Design it (spec): `/architect core standup loop`
-
-## Slice 2: Daily reminders
-
-### 6. Daily reminders · needs a decision
+### 3. Daily reminders
 Nudge members who have not submitted before a team cutoff, so daily standup becomes a habit.
 **Done when:** unsubmitted members get a timezone-aware reminder before cutoff, and submitters are not nagged.
-- [ ] Design it (spec): `/architect daily reminders`
+- [ ] Build it: `/develop daily reminders`
 
-## Deferred
-Out of scope for the current build pass, kept so the plan stays honest.
+## Later
+Useful wider product work, kept visible but not allowed to shape the first build.
 - **Email invites**: invite teammates by email · needs a decision
 - **Billing & plans**: free and paid tiers · needs a decision · GA
 - **Chat integrations**: post standups to team chat · needs a decision
@@ -92,7 +67,7 @@ Out of scope for the current build pass, kept so the plan stays honest.
 
 ## Legend
 
-**The decision box.** Every feature carries exactly one, the sub-task whose label ends with `(spec)`. Its wording varies (`Design it (spec)` normally, `Decide the stack (spec)` on Stack & architecture), so skills locate it by that `(spec)` suffix, never by an exact label. Every other box is an execution box and `/architect` never ticks one.
+**The decision box.** A feature marked `needs a decision` carries one sub task whose label ends with `(spec)`. Its wording varies, so skills locate it by that suffix, never by an exact label. A feature without a blocking decision starts with `/develop`. Every other box is an execution box and `/architect` never ticks one.
 
 **Feature lifecycle**: the scope updates as a feature moves; each row is what it shows and who sets it:
 
@@ -139,8 +114,8 @@ Lead with what the pass produced and the first step; the approach, tier, and ful
 ```
 ## /scope <plan | replan | add> Â· <product, one line>
 
-**<N> features planned (<M> already on the scope, <K> deferred), build approach <name>, workflow <tier>.**
-Next: /clear, then <the first unticked box, usually `/architect <first feature>`, or `/audit` if a brownfield repo has no root AGENTS.md>
+**<N> features captured, <A> in Now, <B> in Next, <C> in Later. Build approach <name>, workflow <tier>.**
+Next: /clear, then <the first unticked box in Now; a new stack may need `/architect`, otherwise prefer `/develop`>
 Heads up: <a feature bumped to a higher tier, a `needs a decision` foundation, or a genuine risk>   (omit if none)
 Scope written to <docs/scope/scope.md>.
 ```

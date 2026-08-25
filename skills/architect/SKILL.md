@@ -1,7 +1,7 @@
 ---
 name: architect
 allowed-tools: Bash, Read, Grep, Glob, Write, Edit, Agent, AskUserQuestion
-description: "Run /architect when choosing between approaches, designing a feature or page, picking a tech stack, or when /develop says a decision is owed, anytime a load bearing technical decision is unmade. Asks deep questions, recommends an answer, and writes a build spec to docs/specs/. Owns all spec files."
+description: "Run /architect when the current build has an unresolved, difficult to reverse, high risk, or product contract decision. Designs the smallest buildable slice by default, keeps full depth for foundational and risky work, and writes the governing spec to docs/specs/. Owns all spec files."
 ---
 
 ## Output style (plain words, no dashes, no hyphens)
@@ -12,7 +12,9 @@ Write everything this skill produces, files and messages alike, in plain simple 
 
 ## What this skill does
 
-Runs structured discovery, weighs options, and writes or updates a build spec in `docs/specs/`. The main thread writes; it offloads only reading the codebase or fetching the web to a cheap subagent (see *Subagents*). Four modes:
+Runs structured discovery, weighs options, and writes or updates a build spec in `docs/specs/`. The default is **Slice depth**: settle only decisions that block the current `Now` feature and record future concerns as follow up. **Full depth** keeps the existing comprehensive treatment for foundational architecture, payments, authentication and authorization boundaries, regulated or sensitive data, destructive migrations, public contracts, and other difficult to reverse work. The engineer may also request `/architect full <topic>` explicitly.
+
+The main thread writes; it offloads only reading the codebase or fetching the web to a cheap subagent (see *Subagents*). Four modes:
 
 | Mode | When | Design behaviour |
 |---|---|---|
@@ -55,6 +57,8 @@ Ask targeted questions before you write the spec (and before spawning any read/f
 - **ASK**: only what the engineer alone knows (requirements, preferences, business rules, compliance scope).
 - **RECOMMEND**: anything expertise settles (which provider/library/pattern fits). State the pick, a one line why, and the runner up; they may override. Never a neutral menu, never a silent decision.
 
+At Slice depth, ask only when the engineer owns the answer or the choice is difficult to reverse. Infer from the repository, recommend reversible choices, and record assumptions. A question is justified only when a different answer would change the current build, its product contract, or its safety. Full depth broadens this to the complete decision surface appropriate to the risk.
+
 Never bundle a complete data model, full stack, or ready made acceptance criteria set into one accept or change panel, and never silently decide a tool, provider, or setup choice for them.
 
 Recommendations align with the stack in use (on a BaaS, prefer its auth/storage over new external tools; reuse beats sprawl). Web or mobile alike: infer the platform, never assume web.
@@ -95,6 +99,8 @@ If no design topic was provided (`/architect` with no argument or an empty descr
 "What design decision do you want to work through? Describe the feature, system, or choice you need to design in one or two sentences."
 
 Wait for the answer; use it as the design topic before pre-flight.
+
+If the topic begins with `full`, remove that word from the topic and set design depth to Full. Otherwise set Slice by default, then automatically raise to Full when the topic is foundational architecture or the current slice touches payments, authentication or authorization boundaries, regulated or sensitive data, destructive migrations, public contracts, or another clearly difficult to reverse decision. State the selected depth with the framing so the engineer can correct it.
 
 ---
 
@@ -149,7 +155,7 @@ Then write the spec, applying:
 - **From `agent-prompt.md`**: adopt the persona ("Who you are / How you think / What you do NOT do") and follow the common instructions, Step 0, Step 0b, `## Expert rules that apply to all modes`, and `## Report format`. At `## Instructions by mode`, follow the one mode file above as the only mode specific block; ignore the other mode files. `agent-prompt.md` is written as a subagent brief with ALL_CAPS placeholders; read those placeholders as the inputs you already gathered in the conversation (listed below), and apply the rules to yourself.
 - **From `spec-template.md`**: use only the part between `=== SPEC TEMPLATE START ===` and `=== SPEC TEMPLATE END ===` (the spec section structure and field guidance). The trailing reference/meta sections (`## Filename conventions`, the `## Status values` table, the umbrella structure / child status notes, `## Writing rules`) are your own guidance: you resolved the filename, shape, and initial `**Status**:` in pre-flight; write the `**Status**:` line per the "On the initial `**Status**:` line" rule in `## Expert rules that apply to all modes`. Do not edit `spec-template.md`.
 
-**References and links: reuse the Stage (c) `REFERENCES_LEVEL`; do not fetch now.** Write the `## References` section and `(basis: ...)` citations at that level, per *On sourcing & citations* in `agent-prompt.md`. The Stage (c) checks ran once; reuse only the links they confirmed, and cite any unverified source by name with no URL. Only if Stage (c) never ran (e.g. the documentation path), present the References consent panel now (recommended pick `No references, keep it clean`) and set `REFERENCES_LEVEL` to `none` or `sources` (`sources+links` is not offered, no fetch is available at write time).
+**References and links:** use the `REFERENCES_LEVEL` from Stage (c), which defaults to `none`. Do not add a references question at write time. When research ran for a blocking current choice, reuse only its verified links and cite any other source by name without inventing a URL.
 
 The inferred MODE (from Framing) is already one of `FEATURE` / `ARCHITECTURE` / `ENHANCEMENT` / `CROSS-CUTTING`.
 
@@ -157,6 +163,7 @@ The inputs to apply (you already have them from the design conversation and pre-
 1. Design topic (from the user's original message)
 2. The inferred framing: MODE, platform (web/mobile/API), stack & conventions (from `AGENTS.md`), and any constraints/compliance inferred or confirmed
 2a. The feature's build approach (pre-flight precedence: scope row `Approach` override, else the project default from `AGENTS.md`/scope header, else the noted default) → `BUILD_APPROACH`; order and slice `## Build plan` by what the approach implies for this feature
+2b. Design depth (`Slice` by default, `Full` when explicitly requested or automatically raised by risk) → `DESIGN_DEPTH`; Slice limits the spec to `Now`, Full covers the complete current risk surface
 3. All staged conversation answers, stage by stage: the confirmed acceptance criteria (already IDed AC-1…, to seed `## Requirements`), the confirmed data model (entities/fields/relationships, the target that seeds the `## Build plan` migration, sized to the feature), the confirmed stack/tool picks, API surface, authz model, and edge cases. On the documentation path (staged conversation skipped) treat it as `"Staged design skipped, documenting an already-made decision"`, not an error
 3a. The RECOMMEND items → `RECOMMEND_ITEMS_OR_NONE`: the specific decisions you must make and justify (tool/provider aligned to the stack, session model, etc.); make each call, don't echo it back as an open question. If none, treat as `"none"`
 3b. The References level → `REFERENCES_LEVEL` (`none` | `sources` | `sources+links`, per the rule above). If Stage (c) never ran and you have not asked, default to `none`

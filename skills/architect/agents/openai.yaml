@@ -3,5 +3,5 @@
 # Agent Skills client installs alongside this file and loads when the skill runs.
 interface:
   display_name: "Architect"
-  short_description: "Design decisions and spec writing"
-  default_prompt: "Run the architect skill: read its SKILL.md, run the design conversation, and write the governing build spec to docs/specs/ before any implementation starts."
+  short_description: "Design only what the current build needs"
+  default_prompt: "Run the $architect skill to settle the decisions blocking this slice and write its governing spec, using full depth only when the risk requires it."

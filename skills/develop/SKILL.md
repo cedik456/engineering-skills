@@ -1,7 +1,7 @@
 ---
 name: develop
 allowed-tools: Bash, Read, Grep, Glob, Write, Edit, Agent, AskUserQuestion
-description: "Run /develop to build a feature, UI or backend, from an approved design, a page, component, API, service, or data slice. If something load bearing is undecided and no spec records it, it stops and routes you to /architect; otherwise it reads the spec plus AGENTS.md, builds, and advances the scope."
+description: "Run /develop to build the next scoped feature, UI, backend, API, service, or data slice. Uses any governing spec, but builds directly when choices are reversible. Stops for unresolved high risk, difficult to reverse, foundational, or product contract decisions, then advances the scope."
 ---
 
 ## Output style (plain words, no dashes, no hyphens)
@@ -12,7 +12,7 @@ Write everything this skill produces, files and messages alike, in plain simple 
 
 ## What this skill does
 
-The builder: turns a spec plus project conventions into working code. Tracks: **UI** (components, pages, layouts; `ui-guide.md`), **Logical** (APIs, services, data layers, business logic, integrations; `logical-guide.md`), or both (e.g. "auth" = sign in pages plus session logic → run both). Step 0 gates on the spec so load bearing choices (an auth approach, a payment provider) are decided in `/architect`, not silently invented partway through the build.
+The builder: turns the scope outcome, any governing spec, and project conventions into working code. Tracks: **UI** (components, pages, layouts; `ui-guide.md`), **Logical** (APIs, services, data layers, business logic, integrations; `logical-guide.md`), or both. Step 0 gates only on blocking decisions, so reversible choices do not prevent building.
 
 ## Asks vs acts
 
@@ -59,19 +59,21 @@ Warnings, not hard blocks, but surface them.
 
 ### Step 0: The spec gate (always first)
 
-Is a decision owed and unrecorded? Do NOT judge this by introspection ("do I feel like I'm inventing something?"), the build model rationalizes a real decision as "just wiring" and waves it through. Use a positive **input coverage** test, which is mechanical and harder to talk yourself out of:
+Is a blocking decision owed and unrecorded? Use a positive **input coverage** test:
 
 > **Enumerate every value this build must produce, compute, or display (from the acceptance criteria and the spec's design). For each, does the spec name where it comes from (an input, a DB column, a derivation from a named value, a prior decision)? Any required value with no named source is an owed decision.**
 
-If any source is unnamed, stop and route to the gate (`/architect`, or record an `Assumed` spec; `/develop` implements decisions, it doesn't make them). A decision is also owed when you'd have to invent:
+If a required product value has no source, stop and route to the gate (`/architect`, or record an `Assumed` spec). A decision is also owed when the current slice requires an unresolved choice that is difficult to reverse, high risk, foundational, or changes the product contract, including:
 
-- **A provider, library, integration, data model, or cross cutting pattern** (e.g. auth provider, DB/ORM, caching strategy).
-- **A whole UI page or screen**: its design system (`design.md` there? if not, which direction?), sections/composition, component inventory, asset strategy (no screenshot, no repo images → e.g. an online source). Owed unless a `design.md` AND a page level spec pin these down.
-- **A feature's behavior** (search, a wizard: "what exactly should it do?" is open; `/architect` asks those questions). Owed unless a spec defines it.
+- **Authentication, authorization, payments, sensitive or regulated data, destructive migrations, public contracts, or foundational architecture.**
+- **A data model or integration commitment that would be expensive to replace**, or a cross cutting pattern several `Now` features depend on.
+- **Feature behavior the scope does not define well enough to know the core job or observable outcome.**
 
-**What "local implementation detail" actually means (the narrow exception):** ONLY a choice among options the spec's named sources already permit, a loop style, a variable name, which helper to call. The moment a choice **determines a value's source, or a behavior an acceptance criterion constrains**, it is load bearing by definition, however small it looks. Deriving "the user's today from the timezone on their last read row" is not a local detail: it picks the source of a value an AC constrains, so it is owed. NOT owed for genuine pure implementation: a small bug fix, a component matching an existing `design.md`, wiring pieces whose sources the spec already names, a copy tweak, anything an existing spec/`design.md`/`AGENTS.md` fully governs.
+**What can proceed without `/architect`:** reversible library and setup choices, local data structures, conventional fields, page composition when the core job and content are clear, component selection, layout, naming, and other implementation details. Infer from the repository first, make a clear recommendation, and record a material assumption in the build report. Do not create an `Assumed` spec for an ordinary reversible choice.
 
-Don't hardcode to page names or to any one example (timezone is an illustration of the pattern, not a rule); apply the input coverage test to whatever was asked. False negatives are the failure mode, building a real decision without noticing: when a required value's source is unnamed, or you are unsure, treat as owed and ask (panel below).
+A value source constrained by an acceptance criterion is still a product decision when several plausible sources change behavior. When one conventional source follows directly from the existing stack and is cheap to change, recommend it and proceed.
+
+Apply the risk and reversibility test to the current slice only. Do not stop the build to settle providers, scale systems, integrations, or behaviors reserved for `Next` or `Later`.
 
 Read only what this feature needs, never the whole `docs/` tree: its one scope file and its one governing spec (single file, or umbrella `index.md` plus the one child speccing this sub task). No other features' rows, scope files, workspaces, or unrelated specs.
 

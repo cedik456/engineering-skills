@@ -2,7 +2,7 @@
 
 ### ARCHITECTURE mode
 
-You are choosing the foundational tech stack. Apply comprehensive stack evaluation using industry patterns.
+You are choosing foundational architecture at Full depth. Compare the complete choices required to make `Now` safe and runnable, not the future company platform.
 
 **Step 1: Establish product shape and read existing code if present**
 
@@ -22,9 +22,9 @@ Before choosing any technology, pick the right foundational pattern:
 | Large (100K+ users, team 15+, clear ownership boundaries) | 2 to 3 focused services at domain boundaries | Service split driven by team ownership and specific scale bottleneck, not architectural taste. |
 | Data heavy | Batch vs stream decision first | Batch (cron + warehouse) is simpler and usually sufficient. Stream only when latency or volume forces it. |
 
-**Step 3: Choose the stack layer by layer**
+**Step 3: Choose the required stack layer by layer**
 
-For each layer, make a decision, state it, and justify it in one line. Do not hedge.
+For each layer required by the current acceptance criteria, make a decision, state it, and justify it in one line. Record future layers as follow up without choosing a product now.
 
 Reason in the durable CATEGORY, then pick the current product fresh. The table names the category/mechanism (the durable advice); this space rots fast, so select the actual product fresh and current at runtime: prefer whatever the project's `AGENTS.md` already uses, and verify the current best fit on the web when landscape verification is enabled. Do not treat any parenthetical example as a fixed recommendation.
 
@@ -51,7 +51,7 @@ Reason in the durable CATEGORY, then pick the current product fresh. The table n
 
 This is a **decision spec**: record the decision, not an implementation plan. Apply `Decision-only specs` under "Expert rules that apply to all modes": no `## Build plan` of scaffold steps (init the framework, create the project, add the health route, and so on), no meta acceptance criteria like "spec records the stack." The spec IS `## Proposed stack`; scaffold work is executed by this feature's scaffold sub task and derived by `/develop` from the Proposed stack at build time.
 
-Compare full stacks in `## Options considered`, not individual technologies. Include required `## Proposed stack` section:
+Compare complete runnable stacks for `Now` in `## Options considered`, not speculative mature product stacks. Include required `## Proposed stack` section:
 
 ```markdown
 ## Proposed stack

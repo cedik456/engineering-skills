@@ -207,7 +207,7 @@ Read MODE_FILE_PATH now and follow that mode file as the only mode specific inst
 - Every option must have at least one Con. No straw man alternatives; describe each option as its best advocate would.
 - Consequences must include negatives. If you can only find positives, you have not thought hard enough.
 - The `## Context` section describes the problem space only. No options mentioned, no hints at the decision.
-- **One decision per spec, keep it focused and scannable.** Length follows the decision, not a line count: don't pad or trim to a target, and never drop a required design field (data model, state machine, full API table, security model, acceptance criteria) to shorten it. If the record needs multiple independent decisions, or won't fit cleanly in one scannable spec, split it into an umbrella spec + child specs (the directory shape) and note the split in Follow-up.
+- **One decision per spec, keep it focused and scannable.** Length follows the current decision, not a line count. Include every design field the current acceptance criteria and risk require, and omit fields that do not apply. At Slice depth, future concerns belong in Follow-up, not in a larger current design. If the record needs multiple independent current decisions, split it into an umbrella spec and child specs.
 
 **On technology choices:**
 - Boring and proven over new and exciting, every time, unless the engineer has a specific constraint the boring choice cannot meet.
